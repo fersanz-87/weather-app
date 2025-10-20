@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App - Current Weather Conditions</title>
+    <meta name="description" content="Check current weather conditions for any city worldwide">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-animation">
+        <div class="cloud cloud1"></div>
+        <div class="cloud cloud2"></div>
+        <div class="cloud cloud3"></div>
+    </div>
+
+    <main class="weather-container">
+        <header class="app-header">
+            <div class="app-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z" fill="currentColor"/>
+                    <circle cx="12" cy="12" r="3" fill="white"/>
+                </svg>
+            </div>
+            <h1>Weather Forecast</h1>
+            <p class="subtitle">Get real-time weather information for any city</p>
+        </header>
+
+        <div class="search-section">
+            <div class="search-wrapper">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                    <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input 
+                    type="text" 
+                    id="city-input" 
+                    placeholder="Enter city name (e.g., London, Tokyo, New York)"
+                    autocomplete="off"
+                >
+            </div>
+            <button id="search-btn" class="search-btn">
+                <span>Search</span>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div id="weather-result" class="weather-result">
+            <!-- Weather information will be displayed here -->
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>Powered by OpenWeatherMap API</p>
+    </footer>
+
+    <script type="module" src="/script.ts"></script>
+</body>
+</html>
