@@ -25,10 +25,12 @@ A modern, professional weather application with a dark theme inspired by BBC Wea
 ### 🛠️ Technical Features
 
 - **TypeScript**: Fully typed with interfaces for type safety
+- **Modular Architecture**: Clean separation of concerns across modules
 - **Modern JavaScript**: Async/await for API calls
 - **Parallel Data Fetching**: Current weather and forecast loaded simultaneously
 - **Error Handling**: Comprehensive error messages for various scenarios
 - **Performance**: Optimized API calls and rendering
+- **SOLID Principles**: Following best practices for maintainability
 
 ## Getting Started
 
@@ -70,18 +72,44 @@ pnpm dev
 pnpm build
 ```
 
+## Documentation
+
+📚 **All project documentation is located in the [`/documentation`](./documentation) folder.**
+
+- **Start here**: [Documentation Index](./documentation/DOCS_INDEX.md) - Complete guide to all documentation
+- **Architecture**: [Module Architecture](./documentation/MODULE_ARCHITECTURE.md) - System design and structure
+- **Dependencies**: [Module Dependencies](./documentation/MODULE_DEPENDENCIES.md) - How modules connect
+- **Refactoring**: [Refactoring Summary](./documentation/REFACTORING_SUMMARY.md) - Recent improvements
+
 ## Project Structure
 
 ```
 weather-app/
-├── index.html          # Main HTML file
-├── script.ts           # TypeScript logic and API handling
-├── style.css           # BBC Weather-inspired styles
-├── tsconfig.json       # TypeScript configuration
-├── vite-env.d.ts       # Vite environment type definitions
-├── package.json        # Project dependencies
-└── .gitignore         # Git ignore rules
+├── index.html              # Main HTML file
+├── style.css               # BBC Weather-inspired styles
+├── script.ts               # Main entry point and event handling
+├── types.ts                # TypeScript interfaces and types
+├── api.ts                  # API layer (OpenWeatherMap integration)
+├── animations.ts           # Background weather animations
+├── ui.ts                   # DOM rendering and UI management
+├── utils.ts                # Utility functions (formatting, calculations)
+├── documentation/          # All project documentation
+├── tsconfig.json           # TypeScript configuration
+├── vite-env.d.ts           # Vite environment type definitions
+├── package.json            # Project dependencies
+└── .gitignore              # Git ignore rules
 ```
+
+### Module Architecture
+
+The codebase follows a modular architecture for better maintainability and scalability:
+
+- **`types.ts`**: Central location for all TypeScript interfaces and types
+- **`api.ts`**: API layer handling all external data fetching with error handling
+- **`animations.ts`**: Weather background animations (rain, snow, clouds, stars)
+- **`ui.ts`**: DOM manipulation and rendering logic
+- **`utils.ts`**: Pure utility functions for data transformation and formatting
+- **`script.ts`**: Main orchestrator connecting all modules
 
 ## API Integration
 
