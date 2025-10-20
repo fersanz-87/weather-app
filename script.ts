@@ -25,6 +25,7 @@ interface WeatherData {
   };
   visibility: number;
   dt: number;
+  timezone: number; // Timezone offset in seconds from UTC
 }
 
 // Interface for forecast data (5-day/3-hour forecast)
@@ -73,6 +74,9 @@ console.log('API Key loaded:', apiKey ? 'Yes' : 'No');
 if (!cityInput || !searchBtn || !weatherResultDiv || !weatherBackground) {
   console.error('Required elements not found!');
 }
+
+// Variable to store the clock interval
+let clockInterval: number | null = null;
 
 // Add event listener to the search button
 searchBtn.addEventListener('click', (): void => {
@@ -166,10 +170,23 @@ async function fetchForecast(city: string): Promise<ForecastData> {
 }
 
 /**
- * Sets the dynamic background based on weather conditions
- * @param weatherCondition - Main weather condition from API
+ * Determines if it's nighttime based on the current hour
+ * @param timezoneOffset - Timezone offset in seconds from UTC
+ * @returns true if it's nighttime (between 6 PM and 6 AM)
  */
-function setWeatherBackground(weatherCondition: string): void {
+function isNightTime(timezoneOffset: number): boolean {
+  const cityTime = getCityLocalTime(timezoneOffset);
+  const hour = cityTime.getHours();
+  // Night is between 6 PM (18:00) and 6 AM (06:00)
+  return hour >= 18 || hour < 6;
+}
+
+/**
+ * Sets the dynamic background based on weather conditions and time of day
+ * @param weatherCondition - Main weather condition from API
+ * @param timezoneOffset - Timezone offset in seconds from UTC
+ */
+function setWeatherBackground(weatherCondition: string, timezoneOffset: number): void {
   console.log('Setting weather background for condition:', weatherCondition);
   
   // Remove all existing weather classes
@@ -179,39 +196,73 @@ function setWeatherBackground(weatherCondition: string): void {
   const rainContainer = weatherBackground.querySelector('.rain-container') as HTMLElement;
   const snowContainer = weatherBackground.querySelector('.snow-container') as HTMLElement;
   const cloudsContainer = weatherBackground.querySelector('.clouds-container') as HTMLElement;
+  const starsContainer = weatherBackground.querySelector('.stars-container') as HTMLElement;
   
   rainContainer.innerHTML = '';
   snowContainer.innerHTML = '';
   cloudsContainer.innerHTML = '';
+  starsContainer.innerHTML = '';
   
   const condition = weatherCondition.toLowerCase();
+  const isNight = isNightTime(timezoneOffset);
+  
+  console.log('Is nighttime?', isNight);
   
   // Determine weather type and apply appropriate class
   if (condition.includes('rain') || condition.includes('drizzle')) {
     console.log('Applying RAINY background with rain drops');
     weatherBackground.classList.add('rainy');
     createRainDrops();
+    if (isNight) {
+      weatherBackground.classList.add('night');
+    }
   } else if (condition.includes('thunder') || condition.includes('storm')) {
     console.log('Applying THUNDERSTORM background with rain and lightning');
     weatherBackground.classList.add('thunderstorm');
     createRainDrops();
+    if (isNight) {
+      weatherBackground.classList.add('night');
+    }
   } else if (condition.includes('snow')) {
     console.log('Applying SNOWY background with snowflakes');
     weatherBackground.classList.add('snowy');
     createSnowFlakes();
+    if (isNight) {
+      weatherBackground.classList.add('night');
+    }
   } else if (condition.includes('clear')) {
-    console.log('Applying SUNNY background with sun');
-    weatherBackground.classList.add('sunny');
+    if (isNight) {
+      console.log('Applying CLEAR NIGHT background with moon and stars');
+      weatherBackground.classList.add('clear-night');
+      createStars();
+    } else {
+      console.log('Applying SUNNY background with sun and clouds');
+      weatherBackground.classList.add('sunny');
+      createClouds();
+    }
   } else if (condition.includes('cloud')) {
     console.log('Applying CLOUDY background with clouds');
-    weatherBackground.classList.add('cloudy');
+    if (isNight) {
+      weatherBackground.classList.add('cloudy-night');
+      createStars();
+    } else {
+      weatherBackground.classList.add('cloudy');
+    }
     createClouds();
   } else if (condition.includes('mist') || condition.includes('fog') || condition.includes('haze')) {
     console.log('Applying MISTY background');
     weatherBackground.classList.add('misty');
+    if (isNight) {
+      weatherBackground.classList.add('night');
+    }
   } else {
     console.log('Applying CLEAR background (default)');
-    weatherBackground.classList.add('clear');
+    if (isNight) {
+      weatherBackground.classList.add('clear-night');
+      createStars();
+    } else {
+      weatherBackground.classList.add('clear');
+    }
   }
   
   console.log('Background classes:', weatherBackground.className);
@@ -266,23 +317,42 @@ function createSnowFlakes(): void {
 }
 
 /**
- * Creates animated clouds
+ * Creates animated clouds with varied sizes and positioning
  */
 function createClouds(): void {
   console.log('Creating animated clouds...');
   const cloudsContainer = weatherBackground.querySelector('.clouds-container') as HTMLElement;
-  const numberOfClouds = 8; // Increased from 5 to 8 for more visible effect
+  const numberOfClouds = 18; // Even more clouds for better coverage
   
   for (let i = 0; i < numberOfClouds; i++) {
     const cloud = document.createElement('div');
     cloud.className = 'cloud-particle';
     
-    // Random positioning and size
-    const top = Math.random() * 50; // Spread across more vertical space
-    const width = Math.random() * 250 + 200; // Larger clouds
-    const height = Math.random() * 100 + 80; // Taller clouds
-    const duration = Math.random() * 30 + 50; // Slower movement
-    const delay = Math.random() * 15;
+    // Create varied cloud sizes - some small, some large
+    const sizeVariation = Math.random();
+    let width: number;
+    let height: number;
+    
+    if (sizeVariation < 0.3) {
+      // Small clouds (30% chance)
+      width = Math.random() * 150 + 180;
+      height = Math.random() * 70 + 60;
+    } else if (sizeVariation < 0.7) {
+      // Medium clouds (40% chance)
+      width = Math.random() * 200 + 250;
+      height = Math.random() * 100 + 90;
+    } else {
+      // Large clouds (30% chance)
+      width = Math.random() * 280 + 350;
+      height = Math.random() * 140 + 120;
+    }
+    
+    // Random vertical positioning across the upper portion of the screen
+    const top = Math.random() * 70; // Spread clouds across more vertical space
+    
+    // Varied animation speeds for depth effect
+    const duration = Math.random() * 50 + 70; // 70-120 seconds
+    const delay = Math.random() * 25; // Stagger the start times
     
     cloud.style.top = `${top}%`;
     cloud.style.left = `-${width}px`; // Start off-screen to the left
@@ -291,10 +361,127 @@ function createClouds(): void {
     cloud.style.animationDuration = `${duration}s`;
     cloud.style.animationDelay = `${delay}s`;
     
+    // Add slight opacity variation for depth
+    const opacity = 0.75 + Math.random() * 0.25; // 0.75 to 1.0 (more visible)
+    cloud.style.opacity = `${opacity}`;
+    
     cloudsContainer.appendChild(cloud);
-    console.log(`Cloud ${i + 1} created:`, { top, width, height, duration, delay });
+    console.log(`Cloud ${i + 1} created:`, { top, width, height, duration, delay, opacity });
   }
   console.log(`Total clouds created: ${numberOfClouds}`);
+}
+
+/**
+ * Creates animated stars for nighttime
+ */
+function createStars(): void {
+  console.log('Creating stars for nighttime...');
+  const starsContainer = weatherBackground.querySelector('.stars-container') as HTMLElement;
+  const numberOfStars = 150; // Lots of stars for a beautiful night sky
+  
+  for (let i = 0; i < numberOfStars; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    
+    // Random positioning across entire screen
+    const left = Math.random() * 100;
+    const top = Math.random() * 100;
+    
+    // Varied star sizes
+    const size = Math.random() * 2 + 1; // 1-3px
+    
+    // Varied animation for twinkling effect
+    const duration = Math.random() * 3 + 2; // 2-5 seconds
+    const delay = Math.random() * 5; // 0-5 seconds delay
+    
+    star.style.left = `${left}%`;
+    star.style.top = `${top}%`;
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.animationDuration = `${duration}s`;
+    star.style.animationDelay = `${delay}s`;
+    
+    starsContainer.appendChild(star);
+  }
+  console.log(`Total stars created: ${numberOfStars}`);
+}
+
+/**
+ * Gets the current local time for a city based on its timezone offset
+ * @param timezoneOffset - Timezone offset in seconds from UTC
+ * @returns Date object adjusted to the city's local time
+ */
+function getCityLocalTime(timezoneOffset: number): Date {
+  // Get current UTC time
+  const now = new Date();
+  const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);
+  
+  // Add the city's timezone offset (in milliseconds)
+  const cityTime = new Date(utcTime + (timezoneOffset * 1000));
+  
+  return cityTime;
+}
+
+/**
+ * Formats the date in a readable format (e.g., "Monday October 20, 2025")
+ * @param date - Date object to format
+ * @returns Formatted date string
+ */
+function formatDate(date: Date): string {
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
+/**
+ * Formats the time in 24-hour format (e.g., "14:35:42")
+ * @param date - Date object to format
+ * @returns Formatted time string
+ */
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString('en-US', { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false 
+  });
+}
+
+/**
+ * Updates the clock display for the selected city
+ * @param timezoneOffset - Timezone offset in seconds from UTC
+ */
+function updateClock(timezoneOffset: number): void {
+  const timeElement = document.getElementById('city-time');
+  const dateElement = document.getElementById('city-date');
+  
+  if (timeElement && dateElement) {
+    const cityTime = getCityLocalTime(timezoneOffset);
+    timeElement.textContent = formatTime(cityTime);
+    dateElement.textContent = formatDate(cityTime);
+  }
+}
+
+/**
+ * Starts the clock that updates every second
+ * @param timezoneOffset - Timezone offset in seconds from UTC
+ */
+function startClock(timezoneOffset: number): void {
+  // Clear any existing interval
+  if (clockInterval !== null) {
+    clearInterval(clockInterval);
+  }
+  
+  // Update immediately
+  updateClock(timezoneOffset);
+  
+  // Update every second
+  clockInterval = window.setInterval(() => {
+    updateClock(timezoneOffset);
+  }, 1000);
 }
 
 /**
@@ -303,8 +490,11 @@ function createClouds(): void {
  * @param forecast - Forecast data
  */
 function displayWeather(current: WeatherData, forecast: ForecastData): void {
-  // Set dynamic background based on weather condition
-  setWeatherBackground(current.weather[0].main);
+  const timezoneOffset: number = current.timezone;
+  
+  // Set dynamic background based on weather condition and time of day
+  setWeatherBackground(current.weather[0].main, timezoneOffset);
+  
   const cityName: string = current.name;
   const temperature: number = Math.round(current.main.temp);
   const feelsLike: number = Math.round(current.main.feels_like);
@@ -315,16 +505,6 @@ function displayWeather(current: WeatherData, forecast: ForecastData): void {
   const windSpeed: number = Math.round(current.wind.speed * 3.6); // Convert m/s to km/h
   const windDirection: string = getWindDirection(current.wind.deg);
   const visibility: number = Math.round(current.visibility / 1000); // Convert to km
-  
-  // Get current date information
-  const now = new Date();
-  const dayName: string = now.toLocaleDateString('en-US', { weekday: 'long' });
-  const fullDate: string = now.toLocaleDateString('en-US', { 
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
   
   // Get hourly forecast for next 24 hours (8 intervals of 3 hours)
   const hourlyForecast = forecast.list.slice(0, 8);
@@ -338,8 +518,10 @@ function displayWeather(current: WeatherData, forecast: ForecastData): void {
       <div class="weather-header">
         <div class="location-info">
           <h2 class="city-name">${cityName}</h2>
-          <p class="update-time">Updated a moment ago</p>
-          <p class="full-date">${fullDate}</p>
+          <div class="city-time-display">
+            <p id="city-time" class="city-time"></p>
+            <p id="city-date" class="city-date"></p>
+          </div>
         </div>
       </div>
       
@@ -442,6 +624,9 @@ function displayWeather(current: WeatherData, forecast: ForecastData): void {
   console.log('Setting weather HTML to display...');
   weatherResultDiv.innerHTML = weatherHTML;
   console.log('Weather HTML set successfully! Display should be visible now.');
+  
+  // Start the clock for the city's timezone
+  startClock(timezoneOffset);
 }
 
 /**

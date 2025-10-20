@@ -72,21 +72,45 @@ body {
   background: linear-gradient(to bottom, #1a1d29 0%, #252936 100%);
 }
 
-/* Sunny Day */
+/* Clear Night Sky */
+.weather-background.clear-night {
+  background: linear-gradient(to bottom, 
+    #0a0e27 0%,    /* Deep night blue */
+    #1a1f3a 40%,   /* Midnight blue */
+    #151b2e 100%   /* Dark blue-gray */
+  );
+}
+
+/* Cloudy Night Sky */
+.weather-background.cloudy-night {
+  background: linear-gradient(to bottom, 
+    #0f1419 0%,    /* Very dark blue */
+    #1a2332 50%,   /* Dark gray-blue */
+    #0d1117 100%   /* Almost black */
+  );
+}
+
+/* Sunny Day - Beautiful Blue Sky */
 .weather-background.sunny {
-  background: linear-gradient(to bottom, #2b5876 0%, #4e4376 50%, #1a1d29 100%);
+  background: linear-gradient(to bottom, 
+    #87CEEB 0%,    /* Sky blue */
+    #B0D9F1 40%,   /* Light sky blue */
+    #E6F3FF 70%,   /* Very light blue */
+    #2b5876 100%   /* Deeper blue at bottom */
+  );
 }
 
 .sun {
   position: absolute;
   top: 80px;
   right: 100px;
-  width: 100px;
-  height: 100px;
-  background: radial-gradient(circle, #ffd700 0%, #ff8c00 70%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, #FFE066 0%, #FFD700 40%, #FFA500 100%);
   border-radius: 50%;
-  box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.4),
-              0 0 100px 60px rgba(255, 140, 0, 0.2);
+  box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.5),
+              0 0 100px 60px rgba(255, 200, 0, 0.3),
+              0 0 150px 90px rgba(255, 180, 0, 0.15);
   opacity: 0;
   transition: opacity 1s ease;
   animation: pulse-sun 4s ease-in-out infinite;
@@ -100,14 +124,97 @@ body {
 @keyframes pulse-sun {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.4),
-                0 0 100px 60px rgba(255, 140, 0, 0.2);
+    box-shadow: 0 0 60px 30px rgba(255, 215, 0, 0.5),
+                0 0 100px 60px rgba(255, 200, 0, 0.3),
+                0 0 150px 90px rgba(255, 180, 0, 0.15);
   }
   50% {
-    transform: scale(1.05);
-    box-shadow: 0 0 80px 40px rgba(255, 215, 0, 0.5),
-                0 0 120px 70px rgba(255, 140, 0, 0.3);
+    transform: scale(1.08);
+    box-shadow: 0 0 80px 40px rgba(255, 215, 0, 0.6),
+                0 0 120px 70px rgba(255, 200, 0, 0.4),
+                0 0 180px 100px rgba(255, 180, 0, 0.2);
   }
+}
+
+/* Moon */
+.moon {
+  position: absolute;
+  top: 80px;
+  right: 100px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle at 30% 30%, #f4f1de 0%, #e8e4d0 40%, #d4cfba 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 40px 20px rgba(244, 241, 222, 0.3),
+              0 0 80px 40px rgba(244, 241, 222, 0.15),
+              inset -10px -10px 20px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 3;
+}
+
+.weather-background.clear-night .moon,
+.weather-background.cloudy-night .moon {
+  opacity: 1;
+}
+
+/* Moon craters for realism */
+.moon::before {
+  content: '';
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 50%;
+  top: 35%;
+  left: 45%;
+  box-shadow: 
+    -20px -10px 0 -3px rgba(0, 0, 0, 0.06),
+    15px 10px 0 -5px rgba(0, 0, 0, 0.05),
+    -10px 20px 0 -4px rgba(0, 0, 0, 0.07);
+}
+
+/* Stars Container */
+.stars-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1s ease;
+  z-index: 1;
+}
+
+.weather-background.clear-night .stars-container,
+.weather-background.cloudy-night .stars-container {
+  opacity: 1;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.8),
+              0 0 6px rgba(255, 255, 255, 0.4);
+  animation: twinkle linear infinite;
+}
+
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+}
+
+/* Some stars should be brighter */
+.star:nth-child(3n) {
+  box-shadow: 0 0 4px rgba(255, 255, 255, 1),
+              0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 /* Cloudy Background */
@@ -130,13 +237,38 @@ body {
   opacity: 1;
 }
 
+.weather-background.sunny .clouds-container {
+  opacity: 1;
+}
+
 .cloud-particle {
   position: absolute;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.5);
   border-radius: 100px;
-  filter: blur(40px);
+  filter: blur(45px);
   animation: float-cloud linear infinite;
-  box-shadow: 0 0 60px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 100px rgba(255, 255, 255, 0.6),
+              inset 0 -20px 40px rgba(255, 255, 255, 0.25);
+}
+
+/* Brighter clouds for sunny weather */
+.weather-background.sunny .cloud-particle {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 120px rgba(255, 255, 255, 0.8),
+              0 0 160px rgba(255, 255, 255, 0.5),
+              inset 0 -25px 50px rgba(255, 255, 255, 0.35);
+  filter: blur(50px);
+}
+
+/* Much more visible clouds for dark/cloudy weather */
+.weather-background.cloudy .cloud-particle,
+.weather-background.cloudy-night .cloud-particle {
+  background: rgba(220, 230, 240, 0.65);
+  box-shadow: 0 0 120px rgba(220, 230, 240, 0.8),
+              0 0 180px rgba(180, 200, 220, 0.6),
+              0 0 240px rgba(160, 180, 200, 0.4),
+              inset 0 -30px 60px rgba(255, 255, 255, 0.2);
+  filter: blur(40px);
 }
 
 @keyframes float-cloud {
@@ -494,18 +626,27 @@ body {
   margin: 0;
 }
 
-.update-time {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin: 0;
+.city-time-display {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
-.full-date {
-  font-size: 1rem;
+.city-time {
+  font-size: 2rem;
+  font-weight: 300;
+  color: var(--accent-blue);
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+.city-date {
+  font-size: 1.125rem;
   color: var(--text-secondary);
   font-weight: 400;
   margin: 0;
-  margin-top: 0.25rem;
 }
 
 /* ================================
@@ -864,8 +1005,28 @@ body {
     font-size: 1.75rem;
   }
   
-  .full-date {
-    font-size: 0.9rem;
+  .city-time {
+    font-size: 1.5rem;
+  }
+  
+  .city-date {
+    font-size: 1rem;
+  }
+  
+  /* Adjust sun position for mobile */
+  .sun {
+    top: 60px;
+    right: 30px;
+    width: 90px;
+    height: 90px;
+  }
+  
+  /* Adjust moon position for mobile */
+  .moon {
+    top: 60px;
+    right: 30px;
+    width: 80px;
+    height: 80px;
   }
   
   .current-weather {
@@ -931,8 +1092,28 @@ body {
     font-size: 1.5rem;
   }
   
-  .full-date {
-    font-size: 0.85rem;
+  .city-time {
+    font-size: 1.25rem;
+  }
+  
+  .city-date {
+    font-size: 0.9rem;
+  }
+  
+  /* Smaller sun for mobile */
+  .sun {
+    top: 50px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+  }
+  
+  /* Smaller moon for mobile */
+  .moon {
+    top: 50px;
+    right: 20px;
+    width: 65px;
+    height: 65px;
   }
   
   .temp-value {
