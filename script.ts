@@ -675,7 +675,7 @@ function getDailyForecast(forecastList: ForecastData['list']): Array<{
     description: string;
   }> = [];
   
-  dailyData.forEach((data, date) => {
+  dailyData.forEach((data) => {
     const temps = data.temps;
     let mostCommonIcon = '';
     let maxCount = 0;
